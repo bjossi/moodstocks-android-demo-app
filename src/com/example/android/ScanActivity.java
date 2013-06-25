@@ -7,14 +7,14 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.SlidingDrawer;
 import android.widget.Toast;
 
 import com.moodstocks.android.MoodstocksError;
 import com.moodstocks.android.Result;
 import com.moodstocks.android.ScannerSession;
 
-public class ScanActivity extends Activity implements ScannerSession.Listener, View.OnClickListener, ProgressDialog.OnCancelListener {
+public class ScanActivity extends Activity implements
+	ScannerSession.Listener, View.OnClickListener, ProgressDialog.OnCancelListener {
 
 	//-----------------------------------
 	// Interface implemented by overlays
@@ -30,7 +30,7 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 	// Here we allow Image recognition, EAN13, Datamatrix and QRCodes decoding.
 	// Feel free to add `EAN8` if you want in addition to decode EAN-8.
 	private int ScanOptions = Result.Type.IMAGE | Result.Type.EAN13 |
-	                          Result.Type.QRCODE | Result.Type.DATAMATRIX;
+				  			  Result.Type.QRCODE | Result.Type.DATAMATRIX;
 
 	public static final String TAG = "Main";
 	private ScannerSession session;
@@ -43,24 +43,24 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
-    // initialize the overlay, that will display results and informations
-    overlay = (Overlay) findViewById(R.id.overlay);
-    overlay.init();
-    // initialize the tap-on-screen
-    touch = findViewById(R.id.touch);
-    touch.setOnClickListener(this);
-    // get the camera preview surface
-    SurfaceView preview = (SurfaceView) findViewById(R.id.preview);
-    
-    // Create a scanner session
-    try {
-      session = new ScannerSession(this, this, preview);
-    } catch (MoodstocksError e) {
-      e.log();
-    }
-    // set session options
-    session.setOptions(ScanOptions);
+
+		// initialize the overlay, that will display results and informations
+		overlay = (Overlay) findViewById(R.id.overlay);
+		overlay.init();
+		// initialize the tap-on-screen
+		touch = findViewById(R.id.touch);
+		touch.setOnClickListener(this);
+		// get the camera preview surface
+		SurfaceView preview = (SurfaceView) findViewById(R.id.preview);
+
+		// Create a scanner session
+		try {
+			session = new ScannerSession(this, this, preview);
+		} catch (MoodstocksError e) {
+			e.log();
+		}
+		// set session options
+		session.setOptions(ScanOptions);
 	}
 
 	@Override
@@ -69,13 +69,13 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 
 		// start scanning!
 		session.resume();
-		
+
 		// Send information to the overlay
 		status = new Bundle();
 		status.putBoolean("decode_ean_8", (ScanOptions & Result.Type.EAN8) != 0);
 		status.putBoolean("decode_ean_13", (ScanOptions & Result.Type.EAN13) != 0);
 		status.putBoolean("decode_qrcode", (ScanOptions & Result.Type.QRCODE) != 0);
-    status.putBoolean("decode_datamatrix", (ScanOptions & Result.Type.DATAMATRIX) != 0);
+		status.putBoolean("decode_datamatrix", (ScanOptions & Result.Type.DATAMATRIX) != 0);
 		overlay.onStatusUpdate(status);
 	}
 
@@ -84,20 +84,18 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 		super.onPause();
 		session.pause();
 	}
-	
+
 	@Override
 	protected void onDestroy() {
-	  super.onDestroy();
-	  session.close();
+		super.onDestroy();
+		session.close();
 	}
-	
+
 	@Override
 	public void onBackPressed() {
-		SlidingDrawer drawer = (SlidingDrawer) findViewById(R.id.drawer);
-		if (drawer.isOpened()) {
-			drawer.animateClose();
-		}
-		else {
+		if (overlay.result != null) {
+			overlay.onResult(session, null);
+		} else {
 			super.onBackPressed();
 		}
 	}
@@ -115,19 +113,19 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 			overlay.onResult(session, result);
 		}
 	}
-	
+
 	@Override
 	public void onScanFailed(MoodstocksError error) {
-	  // in this sample code, we just log the errors.
-	  error.log();
+		// in this sample code, we just log the errors.
+		error.log();
 	}
-	
+
 	@Override
 	public void onApiSearchStart() {
 		// inform user
 		searching = ProgressDialog.show(this, "", "Searching...", true, true, this);
 	}
-	
+
 	@Override
 	public void onApiSearchComplete(Result result) {
 		searching.dismiss();
@@ -144,8 +142,8 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 			t.show();
 		}
 	}
-	
-	
+
+
 	@Override
 	public void onApiSearchFailed(MoodstocksError e) {
 		searching.dismiss();
@@ -154,11 +152,11 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 		t.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM, 0, 200);
 		t.show();
 	}
-	
+
 	//----------------------
 	// View.OnClickListener
 	//----------------------
-	
+
 	// Intercept tap-on-screen:
 	@Override
 	public void onClick(View v) {
@@ -166,11 +164,11 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 			session.snap();
 		}
 	}
-	
+
 	//---------------------------------
 	// ProgressDialog.OnCancelListener
 	//---------------------------------
-	
+
 	// User cancelled snap
 	@Override
 	public void onCancel(DialogInterface dialog) {
@@ -178,6 +176,6 @@ public class ScanActivity extends Activity implements ScannerSession.Listener, V
 			session.cancel();
 		}
 	}
-	
-	
+
+
 }

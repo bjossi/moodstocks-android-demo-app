@@ -11,9 +11,9 @@ import android.view.View;
 
 import com.moodstocks.android.MoodstocksError;
 import com.moodstocks.android.Scanner;
-import com.moodstocks.android.Sync;
 
-public class HomeScreen extends Activity implements View.OnClickListener, Sync.Listener {
+public class HomeScreen extends Activity implements View.OnClickListener,
+													Scanner.SyncListener {
 
 	public static final String TAG = "HomeScreen";
 	private boolean compatible = false;
@@ -22,7 +22,7 @@ public class HomeScreen extends Activity implements View.OnClickListener, Sync.L
 	/* sync related variables */
 	private long last_sync = 0;
 	private static final long DAY = DateUtils.DAY_IN_MILLIS;
-	
+
 	//--------------------------------
 	// Moodstocks API key/secret pair
 	//--------------------------------
@@ -78,28 +78,28 @@ public class HomeScreen extends Activity implements View.OnClickListener, Sync.L
 		}
 		else {
 			/* device is *not* compatible. In this demo application, we chose
-       * to inform the user and exit application. `compatible` flag is here
-       * to avoid calling scanner methods that *will* fail and log errors. 
-       */
-      AlertDialog.Builder builder = new AlertDialog.Builder(this);
-      builder.setCancelable(false);
-      builder.setTitle("Unsupported device!");
-      builder.setMessage("Device must feature an ARM CPU and run Android Gingerbread or over, sorry...");
-      builder.setNeutralButton("Quit", new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int id) {
-          finish();
-        }
-      });
-      builder.show();
+			 * to inform the user and exit application. `compatible` flag is here
+			 * to avoid calling scanner methods that *will* fail and log errors.
+			 */
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setCancelable(false);
+			builder.setTitle("Unsupported device!");
+			builder.setMessage("Device must feature an ARM or x86 CPU, and run Android Gingerbread or over, sorry...");
+			builder.setNeutralButton("Quit", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					finish();
+				}
+			});
+			builder.show();
 		}
 	}
-	
+
 	@Override
 	protected void onResume() {
 		/* perform a sync if:
-		 * - the app is started either for the first time, 
+		 * - the app is started either for the first time,
 		 *   or has been killed and is started back.
-		 * - the app is resumed from the background AND 
+		 * - the app is resumed from the background AND
 		 *   has not been synced for more than one day.
 		 */
 		super.onResume();
@@ -131,7 +131,7 @@ public class HomeScreen extends Activity implements View.OnClickListener, Sync.L
 	//----------------------
 	// Scanner.SyncListener
 	//----------------------
-	
+
 	/* The synchronization is performed seamlessly. Until it has ended,
 	 * the user can still use the online search as a fallback.
 	 */
